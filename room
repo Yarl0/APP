@@ -1,0 +1,26 @@
+@Entity(tableName = "recipes")
+data class SavedRecipe(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val title: String,
+    val ingredients: String, // JSON o texto plano
+    val instructions: String,
+    val imagePath: String,
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Dao
+interface RecipeDao {
+    @Insert
+    suspend fun insert(recipe: SavedRecipe): Long
+    
+    @Query("SELECT * FROM recipes ORDER BY createdAt DESC")
+    fun getAllRecipes(): LiveData<List<SavedRecipe>>
+    
+    @Delete
+    suspend fun delete(recipe: SavedRecipe)
+}
+
+@Database(entities = [SavedRecipe::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun recipeDao(): RecipeDao
+}
